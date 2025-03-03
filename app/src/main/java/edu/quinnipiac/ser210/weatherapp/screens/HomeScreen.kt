@@ -1,74 +1,69 @@
 package edu.quinnipiac.ser210.weatherapp.screens
 
-import androidx.annotation.DrawableRes
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
+import edu.quinnipiac.ser210.weatherapp.api.Weather
+import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
+import edu.quinnipiac.ser210.weatherapp.navigation.WeatherScreens
 
 @Composable
-fun HomeScreen(navController: NavController) {
-    MainContent(navController = navController)
+fun HomeScreen(
+    navController: NavController,
+    weatherViewModel: WeatherViewModel
+) {
+    val weatherResult = weatherViewModel.weatherResult.observeAsState()
+    val weatherList = weatherResult.value?.body()
+    val weatherListNonNullable = weatherList?.filterNotNull() ?: emptyList()
+
+    MainContent(navController = navController, weatherListNonNullable)
 }
 
 @Composable
 fun MainContent (
     navController: NavController,
-    countryList: List<Country> = CountryList
+    weatherList: List<Weather>
 ) {
-    CountryColumn(
-        countryList = countryList,
+    WeatherColumn(
         navController = navController,
+        weatherList = weatherList,
         modifier = Modifier.padding(8.dp)
     )
 }
 
 @Composable
-fun CountryColumn(
-    countryList: List<Country>,
+fun WeatherColumn(
+    weatherList: List<Weather>,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     LazyColumn {
-        itemsIndexed(items = countryList) { index, item ->
-            CountryCard(
-                country = item,
+        itemsIndexed(items = weatherList) { index, item ->
+            LocationCard(
+                weather = item,
                 modifier = Modifier
                     .padding(8.dp)
-            ) { country ->
-                navController.navigate(route = CountryScreens.DetailScreen.name+"/$country")
+            ) { weather ->
+                navController.navigate(route = WeatherScreens.DetailScreen.name+"/$weather")
             }
         }
     }
 }
 
 @Composable
-fun CountryCard(country: Country, modifier: Modifier = Modifier, onItemClick: (String) -> Unit = {}) {
+fun LocationCard(weather: Weather, modifier: Modifier = Modifier, onItemClick: (String) -> Unit = {}) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -83,43 +78,11 @@ fun CountryCard(country: Country, modifier: Modifier = Modifier, onItemClick: (S
                 .fillMaxWidth()
                 .padding(top = 0.dp, bottom = 0.dp)
                 .clickable {
-                    onItemClick(country.name)
+                    onItemClick(weather.name)
                 }
         ) {
-            FlagImage(country.flag, modifier)
-            CountryInfo(country.name, country.currency, modifier)
+            //TODO: Improve cards
+            Text(weather.name)
         }
-    }
-}
-
-@Composable
-fun FlagImage(@DrawableRes flag: Int, modifier: Modifier = Modifier) {
-    Image(
-        painter = painterResource(flag),
-        contentDescription = "Flag",
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Fit,
-        modifier = modifier.size(56.dp)
-    )
-}
-
-@Composable
-fun CountryInfo(countryName: String, currency: String, modifier: Modifier = Modifier) {
-    Column (
-        verticalArrangement = Arrangement.Center,
-        modifier = modifier
-            .padding(start = 8.dp)
-            .height(48.dp)
-    ) {
-        Text(
-            text = "Country: $countryName",
-            fontSize = 22.sp,
-            lineHeight = 16.sp
-        )
-        Text(
-            text = "Currency: $currency",
-            fontSize = 16.sp,
-            lineHeight = 12.sp
-        )
     }
 }

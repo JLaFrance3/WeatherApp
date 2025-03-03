@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -27,6 +28,9 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
+import edu.quinnipiac.ser210.weatherapp.screens.DetailScreen
+import edu.quinnipiac.ser210.weatherapp.screens.HomeScreen
 
 //NavHost for weather app
 @Composable
@@ -34,6 +38,8 @@ fun WeatherAppNavigation() {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateBack = backStackEntry?.destination?.route != WeatherScreens.HomeScreen.name
+    val weatherViewModel: WeatherViewModel = viewModel()
+    weatherViewModel.getData()
 
     Scaffold (
         topBar = {
@@ -52,15 +58,19 @@ fun WeatherAppNavigation() {
                 .padding(innerPadding)
         ) {
             composable(WeatherScreens.HomeScreen.name) {
-                HomeScreen(navController = navController)
+                HomeScreen(
+                    navController = navController,
+                    weatherViewModel = weatherViewModel
+                )
             }
             composable(
-                WeatherScreens.DetailScreen.name+"/{country}",
-                arguments = listOf(navArgument(name = "country") {type = NavType.StringType})
+                WeatherScreens.DetailScreen.name+"/{name}",
+                arguments = listOf(navArgument(name = "name") {type = NavType.StringType})
             ) { backStackEntry ->
                 DetailScreen(
                     navController = navController,
-                    backStackEntry.arguments?.getString("country")
+                    weatherViewModel = weatherViewModel,
+                    backStackEntry.arguments?.getString("name")
                 )
             }
         }

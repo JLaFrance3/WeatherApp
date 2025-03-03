@@ -11,12 +11,14 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import edu.quinnipiac.ser210.weatherapp.api.Weather
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 
 @Composable
@@ -25,31 +27,38 @@ fun DetailScreen(
     weatherViewModel: WeatherViewModel,
     locationName: String?
 ) {
-
-    DetailColumn(
-        navController = navController,
-        location = //TODO
-    )
+    val weatherResult = weatherViewModel.weatherResult.observeAsState()
+    val weatherList = weatherResult.value?.body()
+    val weatherFiltered = weatherList?.filter { weather ->
+        weather.name == locationName
+    }
+    weatherFiltered?.firstOrNull()?.let { weather ->
+        DetailColumn(
+            navController = navController,
+            weather = weather
+        )
+    }
 }
 
 @Composable
-fun DetailColumn(navController: NavController, location: Location, modifier: Modifier = Modifier) {
+fun DetailColumn(navController: NavController, weather: Weather, modifier: Modifier = Modifier) {
+    //TODO: Improve UI
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .padding(16.dp)
     ) {
         Text(
-            text = "Country Fact: ${country.fact}",
+            text = "Location: ${weather.name}",
             modifier = modifier
         )
-        Image(
-            painter = painterResource(country.map),
-            contentDescription = null,
-            contentScale = ContentScale.FillWidth,
+        Text(
+            text = "Temperature: ${weather.main.temprature}",
             modifier = modifier
-                .fillMaxWidth()
-                .padding(top = 32.dp)
+        )
+        Text(
+            text = "Rain: ${weather.rain.amount}",
+            modifier = modifier
         )
     }
 }
