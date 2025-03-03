@@ -18,7 +18,14 @@ class WeatherViewModel : ViewModel(){
     fun getData() {
         viewModelScope.launch {
             try {
-                val response = weatherApi.getWeather()
+                val response = weatherApi.getWeather(
+                    place = "Hamden,CT,US",
+                    count = 1,
+                    units = "standard",
+                    type = "three_hour",
+                    lang = "en",
+                    mode = "json",
+                )
                 if (response.isSuccessful) {
                     Log.d("API Response: ", response.body().toString())
                     _weatherResult.value = response

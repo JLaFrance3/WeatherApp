@@ -28,35 +28,37 @@ fun HomeScreen(
     val weatherList = weatherResult.value?.body()
     val weatherListNonNullable = weatherList?.filterNotNull() ?: emptyList()
 
-    MainContent(navController = navController, weatherListNonNullable)
+    val locationList = //TODO: Create list of locations
+
+    MainContent(navController = navController, locationList)
 }
 
 @Composable
 fun MainContent (
     navController: NavController,
-    weatherList: List<Weather>
+    locationList: List<Weather>
 ) {
     WeatherColumn(
         navController = navController,
-        weatherList = weatherList,
+        locationList = locationList,
         modifier = Modifier.padding(8.dp)
     )
 }
 
 @Composable
 fun WeatherColumn(
-    weatherList: List<Weather>,
+    locationList: List<Weather>,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     LazyColumn {
-        itemsIndexed(items = weatherList) { index, item ->
+        itemsIndexed(items = locationList) { index, item ->
             LocationCard(
                 weather = item,
                 modifier = Modifier
                     .padding(8.dp)
-            ) { weather ->
-                navController.navigate(route = WeatherScreens.DetailScreen.name+"/$weather")
+            ) { location ->
+                navController.navigate(route = WeatherScreens.DetailScreen.name+"/$location")
             }
         }
     }

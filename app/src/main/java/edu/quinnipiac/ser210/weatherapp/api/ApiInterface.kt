@@ -11,21 +11,13 @@ import retrofit2.http.Query
 interface ApiInterface {
     @Headers(
         "x-rapidapi-key: xxx",
-        "x-rapidapi-host: weather-api167.p.rapidapi.com",
-        "Accept: application/json"
+        "x-rapidapi-host: open-weather13.p.rapidapi.com"
     )
-    @GET("api/weather/current")
-    suspend fun getWeather(
-        @Query("place") place: String,
-        @Query("cnt") count: Int,
-        @Query("units") units: Int,
-        @Query("type") type: Int,
-        @Query("lang") lang: String,
-        @Query("mode") mode: String
-    ): Response<ArrayList<Weather>>
+    @GET("city/hamden/EN")
+    suspend fun getWeather(): Response<ArrayList<Weather>>
 
     companion object {
-        var BASE_URL = "https://weather-api167.p.rapidapi.com/"
+        var BASE_URL = "https://open-weather13.p.rapidapi.com/city/"
 
         fun create() : ApiInterface {
             val retrofit = Retrofit.Builder()
