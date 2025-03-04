@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -50,7 +51,7 @@ fun MainContent (
     WeatherColumn(
         navController = navController,
         weatherData = weatherData,
-        modifier = Modifier.padding(8.dp)
+        modifier = Modifier.padding(16.dp)
     )
 }
 
@@ -65,7 +66,8 @@ fun WeatherColumn(
             items(weatherData.keys.toList()) {
                 LocationCard(
                     city = it,
-                    weather = weatherData.get(it)
+                    weather = weatherData.get(it),
+                    modifier = modifier.padding(16.dp)
                 ) { city ->
                     navController.navigate(route = WeatherScreens.DetailScreen.name+"/$city")
                 }
@@ -101,11 +103,12 @@ fun LocationCard(
             if (weather != null) {
                 val currentCondition = weather.data.current_condition.firstOrNull()
                 if (currentCondition != null) {
-                    currentCondition.weatherIconUrl.firstOrNull()?.let { WeatherIcon(it.value) }
+                    currentCondition.weatherIconUrl.firstOrNull()?.let { WeatherIcon(it.value, modifier = modifier) }
                     currentCondition.weatherDesc.firstOrNull()?.let { LocationInfo(
                         city = city,
                         temperature = currentCondition.temp_F,
-                        weatherDesc = it.value
+                        weatherDesc = it.value,
+                        modifier = modifier
                     ) }
                 }
             }
@@ -119,7 +122,9 @@ fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
         model = weatherIconUrl,
         contentDescription = null,
         contentScale = ContentScale.Crop,
-        modifier = Modifier.clip(CircleShape)
+        modifier = Modifier
+            .clip(CircleShape)
+            .size(56.dp)
     )
 }
 
