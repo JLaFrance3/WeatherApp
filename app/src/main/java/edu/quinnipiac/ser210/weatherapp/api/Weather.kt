@@ -1,17 +1,14 @@
 package edu.quinnipiac.ser210.weatherapp.api
 
 data class Weather(
-    val base: String,
-    val clouds: Clouds,
-    val cod: Int,
-    val coord: Coord,
-    val dt: Int,
-    val id: Int,
-    val main: Main,
-    val name: String,
-    val sys: Sys,
-    val timezone: Int,
-    val visibility: Int,
-    val weather: List<WeatherX>,
-    val wind: Wind
+    val astronomy: List<Astronomy>,
+    val date: String,
+    val hourly: List<Hourly>,
+    val maxtempC: String,
+    val maxtempF: String,
+    val mintempC: String,
+    val mintempF: String,
+    val sunHour: String,
+    val totalSnow_cm: String,
+    val uvIndex: String
 )

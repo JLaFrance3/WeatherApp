@@ -39,7 +39,19 @@ fun WeatherAppNavigation() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateBack = backStackEntry?.destination?.route != WeatherScreens.HomeScreen.name
     val weatherViewModel: WeatherViewModel = viewModel()
-    weatherViewModel.getData()
+
+    //Limited requests per day and API requires a lat/long query
+    //Short map of locations to query
+    val locations: Map<String, String> = mapOf(
+        "Hartford" to "41.77,-72.67",
+        "Hamden" to "41.40,-72.90",
+        "New York" to "40.71,-74.01",
+        "Chicago" to "41.88,-87.63",
+        "Los Angeles" to "34.05,-118.24"
+    )
+    weatherViewModel.getData(
+        queries = TODO()
+    )
 
     Scaffold (
         topBar = {

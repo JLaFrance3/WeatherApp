@@ -18,14 +18,14 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
-    val localProperties = Properties()
-    val localPropertiesFile = File(rootDir, "gradle.properties")
-    if (localPropertiesFile.exists() && localPropertiesFile.isFile) {
-        localPropertiesFile.inputStream().use {
-            localProperties.load(it)
+        val localProperties = Properties().apply {
+            val localPropertiesFile = rootProject.file("local.properties")
+            if (localPropertiesFile.exists()) {
+                localPropertiesFile.inputStream().use { load(it) }
+            }
         }
+        buildConfigField("String", "API_KEY", "\"${localProperties["API_KEY"]}\"")
     }
 
     buildTypes {
@@ -35,7 +35,6 @@ android {
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
             )
-            buildConfigField("String", "API_KEY", localProperties.getProperty("API_KEY"))
         }
     }
     compileOptions {
