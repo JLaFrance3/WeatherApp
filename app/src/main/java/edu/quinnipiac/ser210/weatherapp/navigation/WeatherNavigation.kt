@@ -1,5 +1,6 @@
 package edu.quinnipiac.ser210.weatherapp.navigation
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -21,7 +22,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import androidx.navigation.NavHost
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -50,9 +50,12 @@ fun WeatherAppNavigation() {
         Location("Chicago", "41.88,-87.63"),
         Location("Los Angeles", "34.05,-118.24")
     )
+
+    //Get data for each location in list
     weatherViewModel.getData(
         queries = locations
     )
+    Log.d("Network Request: ", "View model request complete")
 
     Scaffold (
         topBar = {

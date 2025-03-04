@@ -6,7 +6,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import edu.quinnipiac.ser210.weatherapp.api.ApiInterface
-import edu.quinnipiac.ser210.weatherapp.api.Weather
 import edu.quinnipiac.ser210.weatherapp.api.WeatherInterface
 import edu.quinnipiac.ser210.weatherapp.data.Location
 import kotlinx.coroutines.async
@@ -16,14 +15,14 @@ import retrofit2.Response
 
 class WeatherViewModel : ViewModel(){
     private val weatherApi = ApiInterface.create()
-    val _weatherResult = MutableLiveData<List<Response<ArrayList<WeatherInterface>>>>()
-    val weatherResult : LiveData<List<Response<ArrayList<WeatherInterface>>>> = _weatherResult
+    private val _weatherResult = MutableLiveData<Map<String, Response<ArrayList<WeatherInterface>>>>()
+    val weatherResult : LiveData<Map<String, Response<ArrayList<WeatherInterface>>>> = _weatherResult
 
     fun getData(queries: List<Location>) {
         viewModelScope.launch {
             try {
                 //Map location name to responses
-                val responseList = mutableListOf<Response<ArrayList<WeatherInterface>>>()
+                val responseMap = mutableMapOf<String, Response<ArrayList<WeatherInterface>>>()
 
                 //Map all query responses
                 val responses = queries.map { location ->
@@ -37,21 +36,21 @@ class WeatherViewModel : ViewModel(){
                             alerts = "no",
                             format = "json"
                         )
-                        responseList.add(response)
+                        responseMap[location.city] = response
                     }
                 }
 
                 //Await concurrent network calls and check each one
                 responses.awaitAll()
-                responseList.forEach { response ->
+                responseMap.forEach { (city, response) ->
                     if (response.isSuccessful) {
                         Log.d("API Response: ", response.body().toString())
                     }
                     else {
-                        Log.d("network error","Failed to load data")
+                        Log.d("network error","Failed to load data for $city")
                     }
                 }
-                _weatherResult.value = responseList
+                _weatherResult.value = responseMap
 
             }
             catch (e : Exception) {

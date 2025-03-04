@@ -19,46 +19,32 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import edu.quinnipiac.ser210.weatherapp.api.Weather
+import edu.quinnipiac.ser210.weatherapp.api.WeatherInterface
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 
 @Composable
 fun DetailScreen(
     navController: NavController,
     weatherViewModel: WeatherViewModel,
-    locationName: String?
+    cityName: String?
 ) {
-    val weatherResult = weatherViewModel.weatherResult.observeAsState()
-    val weatherList = weatherResult.value?.body()
-    val weatherFiltered = weatherList?.filter { weather ->
-        weather.name == locationName
-    }
-    weatherFiltered?.firstOrNull()?.let { weather ->
-        DetailColumn(
-            navController = navController,
-            weather = weather
-        )
-    }
+    val weatherResults = weatherViewModel.weatherResult.observeAsState()
+    val weatherData = weatherResults.value?.get(cityName)?.body()
+
+    DetailColumn(
+        navController = navController,
+        weather = weatherData
+    )
 }
 
 @Composable
-fun DetailColumn(navController: NavController, weather: Weather, modifier: Modifier = Modifier) {
+fun DetailColumn(navController: NavController, weather: ArrayList<WeatherInterface>?, modifier: Modifier = Modifier) {
     //TODO: Improve UI
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = modifier
             .padding(16.dp)
     ) {
-        Text(
-            text = "Location: ${weather.name}",
-            modifier = modifier
-        )
-        Text(
-            text = "Temperature: ${weather.main.temprature}",
-            modifier = modifier
-        )
-        Text(
-            text = "Rain: ${weather.rain.amount}",
-            modifier = modifier
-        )
+
     }
 }

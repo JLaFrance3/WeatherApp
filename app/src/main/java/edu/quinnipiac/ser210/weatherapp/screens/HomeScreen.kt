@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -16,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import edu.quinnipiac.ser210.weatherapp.api.Weather
+import edu.quinnipiac.ser210.weatherapp.api.WeatherInterface
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import edu.quinnipiac.ser210.weatherapp.navigation.WeatherScreens
 
@@ -24,48 +26,54 @@ fun HomeScreen(
     navController: NavController,
     weatherViewModel: WeatherViewModel
 ) {
-    val weatherResult = weatherViewModel.weatherResult.observeAsState()
-    val weatherList = weatherResult.value?.body()
-    val weatherListNonNullable = weatherList?.filterNotNull() ?: emptyList()
+    val weatherResults = weatherViewModel.weatherResult.observeAsState()
 
-    val locationList = //TODO: Create list of locations
+    //Convert mapped <String, responses> to a map of <String, Arraylist>
+    val weatherData = mutableMapOf<String, ArrayList<WeatherInterface>>()
+    weatherResults.value?.forEach { (city, response) ->
+        weatherData.put(city, response.body()?: arrayListOf())
+    }
 
-    MainContent(navController = navController, locationList)
+    MainContent(navController = navController, weatherData.toMap())
 }
 
 @Composable
 fun MainContent (
     navController: NavController,
-    locationList: List<Weather>
+    weatherData: Map<String, ArrayList<WeatherInterface>>
 ) {
     WeatherColumn(
         navController = navController,
-        locationList = locationList,
+        weatherData = weatherData,
         modifier = Modifier.padding(8.dp)
     )
 }
 
 @Composable
 fun WeatherColumn(
-    locationList: List<Weather>,
+    weatherData: Map<String, ArrayList<WeatherInterface>>,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     LazyColumn {
-        itemsIndexed(items = locationList) { index, item ->
+        items(weatherData.keys.toList()) {
             LocationCard(
-                weather = item,
-                modifier = Modifier
-                    .padding(8.dp)
-            ) { location ->
-                navController.navigate(route = WeatherScreens.DetailScreen.name+"/$location")
+                city = it,
+                weather = weatherData.get(it)?: arrayListOf()
+            ) { city ->
+                    navController.navigate(route = WeatherScreens.DetailScreen.name+"/$city")
             }
         }
     }
 }
 
 @Composable
-fun LocationCard(weather: Weather, modifier: Modifier = Modifier, onItemClick: (String) -> Unit = {}) {
+fun LocationCard(
+    city: String,
+    weather: ArrayList<WeatherInterface>,
+    modifier: Modifier = Modifier,
+    onItemClick: (String) -> Unit = {}
+) {
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.surface
@@ -80,11 +88,11 @@ fun LocationCard(weather: Weather, modifier: Modifier = Modifier, onItemClick: (
                 .fillMaxWidth()
                 .padding(top = 0.dp, bottom = 0.dp)
                 .clickable {
-                    onItemClick(weather.name)
+                    onItemClick(city)
                 }
         ) {
             //TODO: Improve cards
-            Text(weather.name)
+            Text(city)
         }
     }
 }

@@ -5,7 +5,6 @@ import retrofit2.Retrofit
 import retrofit2.http.GET
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.http.Headers
-import retrofit2.http.Path
 import edu.quinnipiac.ser210.weatherapp.BuildConfig;
 import retrofit2.http.Query
 
