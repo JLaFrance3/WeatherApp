@@ -28,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import edu.quinnipiac.ser210.weatherapp.data.Location
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import edu.quinnipiac.ser210.weatherapp.screens.DetailScreen
 import edu.quinnipiac.ser210.weatherapp.screens.HomeScreen
@@ -41,16 +42,16 @@ fun WeatherAppNavigation() {
     val weatherViewModel: WeatherViewModel = viewModel()
 
     //Limited requests per day and API requires a lat/long query
-    //Short map of locations to query
-    val locations: Map<String, String> = mapOf(
-        "Hartford" to "41.77,-72.67",
-        "Hamden" to "41.40,-72.90",
-        "New York" to "40.71,-74.01",
-        "Chicago" to "41.88,-87.63",
-        "Los Angeles" to "34.05,-118.24"
+    //Short list of locations to query
+    val locations = listOf(
+        Location("Hartford", "41.77,-72.67"),
+        Location("Hamden", "41.40,-72.90"),
+        Location("New York", "40.71,-74.01"),
+        Location("Chicago", "41.88,-87.63"),
+        Location("Los Angeles", "34.05,-118.24")
     )
     weatherViewModel.getData(
-        queries = TODO()
+        queries = locations
     )
 
     Scaffold (
