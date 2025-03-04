@@ -1,12 +1,16 @@
 package edu.quinnipiac.ser210.weatherapp.screens
 
+import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
@@ -14,10 +18,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
-import edu.quinnipiac.ser210.weatherapp.api.Weather
-import edu.quinnipiac.ser210.weatherapp.api.WeatherInterface
+import coil3.compose.AsyncImage
+import edu.quinnipiac.ser210.weatherapp.api.WeatherData
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import edu.quinnipiac.ser210.weatherapp.navigation.WeatherScreens
 
@@ -29,18 +36,16 @@ fun HomeScreen(
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
 
     //Convert mapped <String, responses> to a map of <String, Arraylist>
-    val weatherData = mutableMapOf<String, ArrayList<WeatherInterface>>()
-    weatherResults.value?.forEach { (city, response) ->
-        weatherData.put(city, response.body()?: arrayListOf())
-    }
+    val weatherData = weatherResults.value?.filterValues { it.body() != null}?.mapValues { it.value.body()!! }
 
-    MainContent(navController = navController, weatherData.toMap())
+    Log.d("HomeScreen", "Initializing MainContent")
+    MainContent(navController = navController, weatherData)
 }
 
 @Composable
 fun MainContent (
     navController: NavController,
-    weatherData: Map<String, ArrayList<WeatherInterface>>
+    weatherData: Map<String, WeatherData>?
 ) {
     WeatherColumn(
         navController = navController,
@@ -51,17 +56,19 @@ fun MainContent (
 
 @Composable
 fun WeatherColumn(
-    weatherData: Map<String, ArrayList<WeatherInterface>>,
+    weatherData: Map<String, WeatherData>?,
     navController: NavController,
     modifier: Modifier = Modifier
 ) {
     LazyColumn {
-        items(weatherData.keys.toList()) {
-            LocationCard(
-                city = it,
-                weather = weatherData.get(it)?: arrayListOf()
-            ) { city ->
+        if (weatherData != null) {
+            items(weatherData.keys.toList()) {
+                LocationCard(
+                    city = it,
+                    weather = weatherData.get(it)
+                ) { city ->
                     navController.navigate(route = WeatherScreens.DetailScreen.name+"/$city")
+                }
             }
         }
     }
@@ -70,7 +77,7 @@ fun WeatherColumn(
 @Composable
 fun LocationCard(
     city: String,
-    weather: ArrayList<WeatherInterface>,
+    weather: WeatherData?,
     modifier: Modifier = Modifier,
     onItemClick: (String) -> Unit = {}
 ) {
@@ -91,8 +98,60 @@ fun LocationCard(
                     onItemClick(city)
                 }
         ) {
-            //TODO: Improve cards
-            Text(city)
+            if (weather != null) {
+                val currentCondition = weather.data.current_condition.firstOrNull()
+                if (currentCondition != null) {
+                    currentCondition.weatherIconUrl.firstOrNull()?.let { WeatherIcon(it.value) }
+                    currentCondition.weatherDesc.firstOrNull()?.let { LocationInfo(
+                        city = city,
+                        temperature = currentCondition.temp_F,
+                        weatherDesc = it.value
+                    ) }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
+    AsyncImage(
+        model = weatherIconUrl,
+        contentDescription = null,
+        contentScale = ContentScale.Crop,
+        modifier = Modifier.clip(CircleShape)
+    )
+}
+
+@Composable
+fun LocationInfo(
+    city: String,
+    temperature: String,
+    weatherDesc: String,
+    modifier: Modifier = Modifier
+) {
+    Column (
+        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .padding(start = 8.dp)
+            .height(48.dp)
+    ) {
+        Text(
+            text = "City: $city",
+            fontSize = 22.sp,
+            lineHeight = 16.sp
+        )
+        Row {
+            Text(
+                text = "$temperature°F",
+                fontSize = 16.sp,
+                lineHeight = 12.sp
+            )
+            Text(
+                text = weatherDesc,
+                fontSize = 16.sp,
+                lineHeight = 12.sp
+            )
         }
     }
 }

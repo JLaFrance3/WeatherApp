@@ -17,13 +17,13 @@ interface ApiInterface {
     @GET("weather.ashx")
     suspend fun getWeather(
         @Query("q") query: String,//Latitude/longitude string "41.40,-72.90"
-        @Query("num_of_days") numDays: Int,//3
+        @Query("num_of_days") numDays: Int,//4
         @Query("tp") timePeriod: Int,//24
         @Query("lang") language: String,//"en"
         @Query("aqi") airQualityIndex: String,//"no"
         @Query("alerts") alerts: String,//"no"
         @Query("format") format: String//"json"
-    ): Response<ArrayList<WeatherInterface>>
+    ): Response<WeatherData>
 
     companion object {
         var BASE_URL = "https://world-weather-online-api1.p.rapidapi.com/"

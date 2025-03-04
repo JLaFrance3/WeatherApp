@@ -55,7 +55,7 @@ fun WeatherAppNavigation() {
     weatherViewModel.getData(
         queries = locations
     )
-    Log.d("Network Request: ", "View model request complete")
+    Log.d("Network Request: ", "Completed request, creating navigation items")
 
     Scaffold (
         topBar = {
@@ -86,7 +86,7 @@ fun WeatherAppNavigation() {
                 DetailScreen(
                     navController = navController,
                     weatherViewModel = weatherViewModel,
-                    backStackEntry.arguments?.getString("name")
+                    backStackEntry.arguments?.getString("name") ?: ""
                 )
             }
         }

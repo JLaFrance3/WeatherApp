@@ -1,5 +1,5 @@
 package edu.quinnipiac.ser210.weatherapp.api
 
-data class WeatherInterface(
+data class WeatherData(
     val `data`: Data
 )
