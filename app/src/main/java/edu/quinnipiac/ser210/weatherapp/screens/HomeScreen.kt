@@ -100,9 +100,11 @@ fun LocationCard(
         modifier = modifier
     ) {
         Row (
+            verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(top = 0.dp, bottom = 0.dp)
+                .padding(horizontal = 12.dp)
                 .clickable {
                     onItemClick(city)
                 }
@@ -134,7 +136,6 @@ fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
         modifier = Modifier
             .clip(CircleShape)
             .size(56.dp)
-            .padding(4.dp)
     )
 }
 
@@ -149,7 +150,6 @@ fun LocationInfo(
     Column (
         verticalArrangement = Arrangement.Center,
         modifier = modifier
-            .padding(start = 8.dp)
             .height(48.dp)
     ) {
         Text(
