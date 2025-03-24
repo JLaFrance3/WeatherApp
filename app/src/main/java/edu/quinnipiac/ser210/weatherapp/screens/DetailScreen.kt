@@ -5,7 +5,9 @@
 package edu.quinnipiac.ser210.weatherapp.screens
 
 import android.icu.text.SimpleDateFormat
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -41,6 +44,7 @@ import coil3.compose.AsyncImage
 import edu.quinnipiac.ser210.weatherapp.api.WeatherData
 import edu.quinnipiac.ser210.weatherapp.api.WeatherDesc
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
+import java.time.LocalDate
 import java.util.Date
 
 @Composable
@@ -124,7 +128,29 @@ fun DetailColumn(
                 modifier = modifier
             )
 
-            ForecastRow()
+            //Parse forecast days from API date for display in ForecastRow
+            val formatter = SimpleDateFormat("yyyy-MM-dd")
+            val sdf2 = SimpleDateFormat("EEE")
+            val days = listOf(
+                sdf2.format(formatter.parse(forecast[1].date)),
+                sdf2.format(formatter.parse(forecast[2].date))
+            )
+
+            //Row of forecast cards
+            ForecastRow(
+                days = days,
+                maxTemperatures = listOf(forecast[1].maxtempF, forecast[2].maxtempF),
+                minTemperatures = listOf(forecast[1].mintempF, forecast[2].mintempF),
+                weatherIconUrls = listOf(
+                    forecast[1].hourly[0].weatherIconUrl[0].value,
+                    forecast[2].hourly[0].weatherIconUrl[0].value
+                    ),
+                weatherDescriptions = listOf(
+                    forecast[1].hourly[0].weatherDesc[0].value,
+                    forecast[2].hourly[0].weatherDesc[0].value
+                ),
+                modifier = modifier
+            )
         }
     }
 }
@@ -233,8 +259,14 @@ fun PrecipitationInfoColumn(
 }
 
 //Row of forecast cards
+//Accepts lists of strings for use in cards
 @Composable
 fun ForecastRow(
+    days: List<String>,
+    maxTemperatures: List<String>,
+    minTemperatures: List<String>,
+    weatherIconUrls: List<String>,
+    weatherDescriptions: List<String>,
     modifier: Modifier = Modifier
 ) {
     Row (
@@ -244,16 +276,26 @@ fun ForecastRow(
             .padding(horizontal = 4.dp, vertical = 0.dp)
             .fillMaxWidth()
     ) {
-        ForecastCard (
+        ForecastCard(
+            day = days[0],
+            maxTemperature = maxTemperatures[0],
+            minTemperature = minTemperatures[0],
+            weatherIconUrl = weatherIconUrls[0],
+            weatherDesc = weatherDescriptions[0],
             modifier = modifier
                 .weight(0.5f)
                 .fillMaxHeight()
         )
         VerticalDivider(thickness = 12.dp, color = Color.Transparent)
-        ForecastCard (
+        ForecastCard(
+            day = days[1],
+            maxTemperature = maxTemperatures[1],
+            minTemperature = minTemperatures[1],
+            weatherIconUrl = weatherIconUrls[1],
+            weatherDesc = weatherDescriptions[1],
             modifier = modifier
                 .weight(0.5f)
-                .fillMaxHeight()
+                .fillMaxHeight(),
         )
     }
 }
@@ -261,6 +303,11 @@ fun ForecastRow(
 //Card displaying future weather information
 @Composable
 fun ForecastCard(
+    day: String,
+    maxTemperature: String,
+    minTemperature: String,
+    weatherIconUrl: String,
+    weatherDesc: String,
     modifier: Modifier = Modifier
 ) {
     ElevatedCard(
@@ -272,8 +319,39 @@ fun ForecastCard(
         ),
         modifier = modifier
     ) {
-        Text(
-            text = "forecast here"
-        )
+        Column (
+            verticalArrangement = Arrangement.SpaceBetween,
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(12.dp)
+        ) {
+            Text(
+                text = day,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.SemiBold,
+                modifier = modifier
+            )
+            AsyncImage(
+                model = weatherIconUrl,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                    .size(72.dp)
+                    .clip(CircleShape)
+                    .border(1.dp, Color.Black, CircleShape)
+            )
+            Text(
+                text = "$minTemperature°F/$maxTemperature°F",
+                fontSize = 20.sp,
+                modifier = modifier
+                    .padding(12.dp)
+            )
+            Text(
+                text = weatherDesc,
+                fontSize = 20.sp,
+                modifier = modifier
+            )
+        }
     }
 }
