@@ -1,3 +1,7 @@
+/**
+ * Interface for world-weather-online's API 'search' request
+ */
+
 package edu.quinnipiac.ser210.weatherapp.api
 
 import retrofit2.Response
@@ -10,6 +14,7 @@ import retrofit2.http.Query
 
 
 interface ApiInterface {
+    // API_KEY stored in local.properties
     @Headers(
         "x-rapidapi-key: ${BuildConfig.API_KEY}",
         "x-rapidapi-host: world-weather-online-api1.p.rapidapi.com"
@@ -17,7 +22,7 @@ interface ApiInterface {
     @GET("weather.ashx")
     suspend fun getWeather(
         @Query("q") query: String,//Latitude/longitude string "41.40,-72.90"
-        @Query("num_of_days") numDays: Int,//4
+        @Query("num_of_days") numDays: Int,//3
         @Query("tp") timePeriod: Int,//24
         @Query("lang") language: String,//"en"
         @Query("aqi") airQualityIndex: String,//"no"

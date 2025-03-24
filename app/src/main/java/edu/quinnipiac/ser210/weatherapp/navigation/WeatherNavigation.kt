@@ -1,3 +1,7 @@
+/**
+ * NavController for navigating from homescreen to detail screens
+ */
+
 package edu.quinnipiac.ser210.weatherapp.navigation
 
 import android.util.Log
@@ -36,6 +40,7 @@ import edu.quinnipiac.ser210.weatherapp.screens.HomeScreen
 //NavHost for weather app
 @Composable
 fun WeatherAppNavigation() {
+    // Create navcontroller and allow for back navigation if not on homescreen
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateBack = backStackEntry?.destination?.route != WeatherScreens.HomeScreen.name
@@ -45,10 +50,10 @@ fun WeatherAppNavigation() {
     //Short list of locations to query
     val locations = listOf(
         Location("Hartford", "41.77,-72.67"),
-        Location("Hamden", "41.40,-72.90"),
-        Location("New York", "40.71,-74.01"),
-        Location("Chicago", "41.88,-87.63"),
-        Location("Los Angeles", "34.05,-118.24")
+//        Location("Hamden", "41.40,-72.90"),
+//        Location("New York", "40.71,-74.01"),
+//        Location("Chicago", "41.88,-87.63"),
+//        Location("Los Angeles", "34.05,-118.24")
     )
 
     //Get data for each location in list

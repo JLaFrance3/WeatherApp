@@ -1,3 +1,7 @@
+/**
+ * WeatherViewModel handling network requests
+ */
+
 package edu.quinnipiac.ser210.weatherapp.model
 
 import android.util.Log

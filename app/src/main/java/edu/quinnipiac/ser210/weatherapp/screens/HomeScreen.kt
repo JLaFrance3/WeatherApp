@@ -1,3 +1,7 @@
+/**
+ * Homescreen allowing for location selection to obtain weather information
+ */
+
 package edu.quinnipiac.ser210.weatherapp.screens
 
 import android.util.Log
@@ -56,6 +60,7 @@ fun MainContent (
     )
 }
 
+//Column of cards displaying weather information for various locations
 @Composable
 fun WeatherColumn(
     weatherData: Map<String, WeatherData>?,
@@ -77,6 +82,7 @@ fun WeatherColumn(
     }
 }
 
+//Clickable card containing weather information for specific location
 @Composable
 fun LocationCard(
     city: String,
@@ -117,6 +123,7 @@ fun LocationCard(
     }
 }
 
+//Icon for display on LocationCards
 @Composable
 fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
     AsyncImage(
@@ -131,6 +138,7 @@ fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
     )
 }
 
+//Information to be displayed on LocationCards
 @Composable
 fun LocationInfo(
     city: String,

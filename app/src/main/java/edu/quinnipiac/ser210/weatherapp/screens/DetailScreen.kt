@@ -1,3 +1,7 @@
+/**
+ * DetailScreen listing current weather and forecasts for selected location
+ */
+
 package edu.quinnipiac.ser210.weatherapp.screens
 
 import android.icu.text.SimpleDateFormat
@@ -37,6 +41,7 @@ fun DetailScreen(
     weatherViewModel: WeatherViewModel,
     cityName: String
 ) {
+    // Get weather data from view model
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
     val weatherData = weatherResults.value?.get(cityName)?.body()
 
@@ -48,6 +53,7 @@ fun DetailScreen(
     )
 }
 
+// Column of all weather information to be displayed for passed location
 @Composable
 fun DetailColumn(
     navController: NavController,
@@ -95,6 +101,7 @@ fun DetailColumn(
     }
 }
 
+//Large current weather image
 @Composable
 fun WeatherImage(weatherIconUrl: String, modifier: Modifier = Modifier) {
     AsyncImage(
@@ -107,6 +114,7 @@ fun WeatherImage(weatherIconUrl: String, modifier: Modifier = Modifier) {
     )
 }
 
+//Information about current weather
 @Composable
 fun CurrentWeatherInfoColumn(
     city: String,
@@ -137,6 +145,7 @@ fun CurrentWeatherInfoColumn(
                 fontWeight = FontWeight.ExtraBold,
                 textAlign = TextAlign.Center,
                 modifier = modifier
+                    .padding(4.dp)
             )
         }
         Text(
@@ -145,30 +154,39 @@ fun CurrentWeatherInfoColumn(
             fontWeight = FontWeight.SemiBold,
             modifier = modifier
         )
+        HorizontalDivider(
+            thickness = 2.dp,
+            modifier = modifier.padding(12.dp)
+        )
         Text(
             text = "Current Weather:",
             fontSize = 22.sp,
             fontWeight = FontWeight.SemiBold,
             modifier = modifier
+                .padding(4.dp)
         )
         Text(
             text = description,
             fontSize = 22.sp,
             modifier = modifier
+                .padding(4.dp)
         )
         Text(
             text = "$temperature°F, feels like $feelsLike°F",
             fontSize = 22.sp,
             modifier = modifier
+                .padding(4.dp)
         )
         Text(
             text = "Humidity: $humidity%",
             fontSize = 22.sp,
             modifier = modifier
+                .padding(4.dp)
         )
     }
 }
 
+//Precipitation information
 @Composable
 fun PrecipitationInfoColumn(
     city: String,
@@ -193,6 +211,7 @@ fun PrecipitationInfoColumn(
     }
 }
 
+//Row of forecast cards
 @Composable
 fun ForecastRow(
 
@@ -200,6 +219,7 @@ fun ForecastRow(
 
 }
 
+//Card displaying future weather information
 @Composable
 fun ForecastCard(
 
