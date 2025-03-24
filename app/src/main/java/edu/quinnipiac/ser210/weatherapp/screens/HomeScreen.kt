@@ -18,6 +18,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
@@ -51,7 +52,7 @@ fun MainContent (
     WeatherColumn(
         navController = navController,
         weatherData = weatherData,
-        modifier = Modifier.padding(16.dp)
+        modifier = Modifier.padding(8.dp)
     )
 }
 
@@ -67,7 +68,7 @@ fun WeatherColumn(
                 LocationCard(
                     city = it,
                     weather = weatherData.get(it),
-                    modifier = modifier.padding(16.dp)
+                    modifier = modifier.padding(12.dp)
                 ) { city ->
                     navController.navigate(route = WeatherScreens.DetailScreen.name+"/$city")
                 }
@@ -88,7 +89,7 @@ fun LocationCard(
             containerColor = MaterialTheme.colorScheme.surface
         ),
         elevation = CardDefaults.cardElevation(
-            defaultElevation = 4.dp
+            defaultElevation = 8.dp
         ),
         modifier = modifier
     ) {
@@ -122,9 +123,11 @@ fun WeatherIcon(weatherIconUrl: String, modifier: Modifier = Modifier) {
         model = weatherIconUrl,
         contentDescription = null,
         contentScale = ContentScale.Crop,
+        alignment = Alignment.Center,
         modifier = Modifier
             .clip(CircleShape)
             .size(56.dp)
+            .padding(4.dp)
     )
 }
 
@@ -148,7 +151,7 @@ fun LocationInfo(
         )
         Row {
             Text(
-                text = "$temperature°F",
+                text = "$temperature°F\t",
                 fontSize = 16.sp,
                 lineHeight = 12.sp
             )
