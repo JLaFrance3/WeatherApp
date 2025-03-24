@@ -1,13 +1,20 @@
+/**
+ * DetailScreen listing current weather and forecasts for selected location
+ */
+
 package edu.quinnipiac.ser210.weatherapp.screens
 
 import android.icu.text.SimpleDateFormat
 import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Text
@@ -18,11 +25,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
 import edu.quinnipiac.ser210.weatherapp.api.WeatherData
+import edu.quinnipiac.ser210.weatherapp.api.WeatherDesc
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import java.util.Date
 
@@ -32,6 +41,7 @@ fun DetailScreen(
     weatherViewModel: WeatherViewModel,
     cityName: String
 ) {
+    // Get weather data from view model
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
     val weatherData = weatherResults.value?.get(cityName)?.body()
 
@@ -39,18 +49,19 @@ fun DetailScreen(
     DetailColumn(
         navController = navController,
         city = cityName,
-        weather = weatherData
+        weatherData = weatherData
     )
 }
 
+// Column of all weather information to be displayed for passed location
 @Composable
 fun DetailColumn(
     navController: NavController,
     city: String,
-    weather: WeatherData?,
+    weatherData: WeatherData?,
     modifier: Modifier = Modifier
 ) {
-    val sdf = SimpleDateFormat("dd-MM-yyyy")
+    val sdf = SimpleDateFormat("EEE, MMM d, yyyy")
     val currentDateAndTime = sdf.format(Date())
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -58,24 +69,39 @@ fun DetailColumn(
             .padding(16.dp)
             .fillMaxSize()
     ) {
-        if (weather != null) {
-            val currentCondition = weather.data.current_condition.firstOrNull()
-            if (currentCondition != null) {
-                currentCondition.weatherIconUrl.firstOrNull()?.let { WeatherImage(it.value, modifier = modifier) }
-                currentCondition.weatherDesc.firstOrNull()?.let { WeatherInfo(
-                    city = city,
-                    temperature = currentCondition.temp_F,
-                    date = currentDateAndTime,
-                    description = it.value,
-                    feelsLike = currentCondition.FeelsLikeF,
-                    humidity = currentCondition.humidity,
-                    modifier = modifier
-                ) }
-            }
+        if (weatherData != null) {
+            val currentCondition = weatherData.data.current_condition[0]
+            WeatherImage(
+                currentCondition.weatherIconUrl[0].value, modifier = modifier
+            )
+            CurrentWeatherInfoColumn(
+                city = city,
+                temperature = currentCondition.temp_F,
+                date = currentDateAndTime,
+                description = currentCondition.weatherDesc[0].value,
+                feelsLike = currentCondition.FeelsLikeF,
+                humidity = currentCondition.humidity,
+                modifier = modifier
+            )
+
+            val forecast = weatherData.data.weather
+            PrecipitationInfoColumn(
+                city = city,
+                date = currentDateAndTime,
+                maxTemperature = forecast[0].maxtempF,
+                minTemperature = forecast[0].mintempF,
+                weatherIconUrl = forecast[0].hourly[0].weatherIconUrl[0].value,
+                weatherDesc = forecast[0].hourly[0].weatherDesc[0].value,
+                chanceRain = forecast[0].hourly[0].chanceofrain,
+                chanceSnow = forecast[0].hourly[0].chanceofsnow,
+                wind = forecast[0].hourly[0].WindGustMiles,
+                modifier = modifier
+            )
         }
     }
 }
 
+//Large current weather image
 @Composable
 fun WeatherImage(weatherIconUrl: String, modifier: Modifier = Modifier) {
     AsyncImage(
@@ -83,13 +109,14 @@ fun WeatherImage(weatherIconUrl: String, modifier: Modifier = Modifier) {
         contentDescription = null,
         contentScale = ContentScale.Crop,
         modifier = Modifier
-            .size(156.dp)
-            .clip(RoundedCornerShape(8.dp))
+            .size(148.dp)
+            .clip(RoundedCornerShape(12.dp))
     )
 }
 
+//Information about current weather
 @Composable
-fun WeatherInfo(
+fun CurrentWeatherInfoColumn(
     city: String,
     date: String,
     temperature: String,
@@ -99,36 +126,103 @@ fun WeatherInfo(
     modifier: Modifier = Modifier
 ) {
     Column (
-        verticalArrangement = Arrangement.Center,
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier
             .padding(12.dp)
+            .fillMaxWidth()
     ) {
-        Text(
-            text = "City: $city",
-            fontSize = 48.sp,
-            fontWeight = FontWeight.ExtraBold,
+        Box (
+            contentAlignment = Alignment.TopCenter,
             modifier = modifier
-        )
+                .fillMaxWidth()
+                .height(120.dp)
+        ) {
+            Text(
+                text = "City: $city",
+                fontSize = 48.sp,
+                lineHeight = 56.sp,
+                fontWeight = FontWeight.ExtraBold,
+                textAlign = TextAlign.Center,
+                modifier = modifier
+                    .padding(4.dp)
+            )
+        }
         Text(
             text = date,
             fontSize = 36.sp,
-            fontWeight = FontWeight.Bold,
+            fontWeight = FontWeight.SemiBold,
             modifier = modifier
+        )
+        HorizontalDivider(
+            thickness = 2.dp,
+            modifier = modifier.padding(12.dp)
+        )
+        Text(
+            text = "Current Weather:",
+            fontSize = 22.sp,
+            fontWeight = FontWeight.SemiBold,
+            modifier = modifier
+                .padding(4.dp)
         )
         Text(
             text = description,
             fontSize = 22.sp,
-            modifier = modifier.padding(80.dp)
+            modifier = modifier
+                .padding(4.dp)
         )
         Text(
-            text = "$temperature, feels like $feelsLike",
+            text = "$temperature°F, feels like $feelsLike°F",
             fontSize = 22.sp,
             modifier = modifier
+                .padding(4.dp)
         )
         Text(
-            text = "Humidity: $humidity",
+            text = "Humidity: $humidity%",
             fontSize = 22.sp,
             modifier = modifier
+                .padding(4.dp)
         )
     }
+}
+
+//Precipitation information
+@Composable
+fun PrecipitationInfoColumn(
+    city: String,
+    date: String,
+    maxTemperature: String,
+    minTemperature: String,
+    weatherIconUrl: String,
+    weatherDesc: String,
+    chanceRain: String = "0",
+    chanceSnow: String = "0",
+    wind: String,
+    modifier: Modifier = Modifier
+) {
+    Column (
+        verticalArrangement = Arrangement.Top,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier
+            .padding(12.dp)
+            .fillMaxWidth()
+    ) {
+
+    }
+}
+
+//Row of forecast cards
+@Composable
+fun ForecastRow(
+
+) {
+
+}
+
+//Card displaying future weather information
+@Composable
+fun ForecastCard(
+
+) {
+
 }

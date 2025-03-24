@@ -1,3 +1,7 @@
+/**
+ * Screens for navigation and their companion objects
+ */
+
 package edu.quinnipiac.ser210.weatherapp.navigation
 
 enum class WeatherScreens {
