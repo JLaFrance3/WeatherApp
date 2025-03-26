@@ -4,7 +4,6 @@
 
 package edu.quinnipiac.ser210.weatherapp.navigation
 
-import android.content.Context
 import android.content.Intent
 import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
@@ -38,8 +37,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.core.content.ContextCompat.startActivities
-import androidx.core.content.ContextCompat.startActivity
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -74,11 +71,12 @@ fun WeatherAppNavigation() {
     //Short list of locations to query
     val locations = listOf(
         Location("Hartford", "41.77,-72.67"),
-//        Location("Hamden", "41.40,-72.90"),
-//        Location("New York", "40.71,-74.01"),
-//        Location("Chicago", "41.88,-87.63"),
-//        Location("Los Angeles", "34.05,-118.24")
-//        Location("Boston", "42.36,-71.06")
+        Location("Hamden", "41.40,-72.90"),
+        Location("New York", "40.71,-74.01"),
+        Location("Chicago", "41.88,-87.63"),
+        Location("Los Angeles", "34.05,-118.24"),
+        Location("Boston", "42.36,-71.06"),
+        Location("Austin", "30.18,-97.50")
     )
 
     //Get data for each location in list
