@@ -85,11 +85,6 @@ fun WeatherAppNavigation() {
     LaunchedEffect(Unit) {
         weatherViewModel.getData(queries = locations)
     }
-
-    //Get data for each location in list
-//    weatherViewModel.getData(
-//        queries = locations
-//    )
     Log.d("Network Request: ", "Completed request, creating navigation items")
 
     Scaffold (
