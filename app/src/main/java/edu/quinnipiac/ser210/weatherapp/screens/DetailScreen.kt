@@ -8,6 +8,7 @@ import android.icu.text.SimpleDateFormat
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -53,18 +54,27 @@ import java.util.Date
 fun DetailScreen(
     navController: NavController,
     weatherViewModel: WeatherViewModel,
-    cityName: String
+    cityName: String,
+    backgroundColor: Color
 ) {
     // Get weather data from view model
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
     val weatherData = weatherResults.value?.get(cityName)?.body()
 
     Log.d("DetailScreen", "Initializing DetailColumn")
-    DetailColumn(
-        navController = navController,
-        city = cityName,
-        weatherData = weatherData
-    )
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(backgroundColor)
+    ){
+        DetailColumn(
+            navController = navController,
+            city = cityName,
+            weatherData = weatherData
+        )
+    }
+
 }
 
 // Column of all weather information to be displayed for passed location

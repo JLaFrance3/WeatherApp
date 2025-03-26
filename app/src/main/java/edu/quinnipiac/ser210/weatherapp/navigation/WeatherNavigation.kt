@@ -67,6 +67,9 @@ fun WeatherAppNavigation() {
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
     val weatherResponses = weatherResults.value
 
+    var toggleColor by remember { mutableStateOf(false) }
+    val backgroundColor = if (toggleColor) Color.DarkGray else Color.White
+
     //Limited requests per day and API requires a lat/long query
     //Short list of locations to query
     val locations = listOf(
@@ -90,7 +93,8 @@ fun WeatherAppNavigation() {
                 navigateUp = { navController.navigateUp() },
                 cityName = backStackEntry?.arguments?.getString("name") ?: "",
                 weatherResponses = weatherResponses,
-                modifier = Modifier
+                modifier = Modifier,
+                onSettingsClick = { toggleColor = !toggleColor }
             )
         }
     ) { innerPadding ->
@@ -104,7 +108,8 @@ fun WeatherAppNavigation() {
             composable(WeatherScreens.HomeScreen.name) {
                 HomeScreen(
                     navController = navController,
-                    weatherViewModel = weatherViewModel
+                    weatherViewModel = weatherViewModel,
+                    backgroundColor = backgroundColor
                 )
             }
             composable(
@@ -114,7 +119,8 @@ fun WeatherAppNavigation() {
                 DetailScreen(
                     navController = navController,
                     weatherViewModel = weatherViewModel,
-                    backStackEntry.arguments?.getString("name") ?: ""
+                    backStackEntry.arguments?.getString("name") ?: "",
+                    backgroundColor = backgroundColor
                 )
             }
         }
@@ -129,6 +135,7 @@ fun NavBar(
     navigateUp: () -> Unit,
     cityName: String = "",
     weatherResponses: Map<String, Response<WeatherData>>?,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -156,6 +163,7 @@ fun NavBar(
             }
         },
         actions = {
+            // Share Button
             if (canNavigateBack) {
                 IconButton(onClick = {
                     // Get weather for selected city from map of viewmodel responses
@@ -183,7 +191,7 @@ fun NavBar(
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                     )
                 }
             }
@@ -194,17 +202,17 @@ fun NavBar(
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                 )
             }
             // Settings Button
-            IconButton(onClick = {}){
+            IconButton(onClick = { onSettingsClick() }){
                 Icon(
                     imageVector = Icons.Outlined.Settings,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                 )
             }
 
@@ -230,5 +238,4 @@ fun NavBar(
             }
         )
     }
-
 }
