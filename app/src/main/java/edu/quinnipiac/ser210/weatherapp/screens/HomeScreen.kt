@@ -5,13 +5,10 @@
 package edu.quinnipiac.ser210.weatherapp.screens
 
 import android.util.Log
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,7 +25,6 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,8 +37,7 @@ import edu.quinnipiac.ser210.weatherapp.navigation.WeatherScreens
 @Composable
 fun HomeScreen(
     navController: NavController,
-    weatherViewModel: WeatherViewModel,
-    backgroundColor: Color
+    weatherViewModel: WeatherViewModel
 ) {
     val weatherResults = weatherViewModel.weatherResult.observeAsState()
 
@@ -50,13 +45,7 @@ fun HomeScreen(
     val weatherData = weatherResults.value?.filterValues { it.body() != null}?.mapValues { it.value.body()!! }
 
     Log.d("HomeScreen", "Initializing MainContent")
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(backgroundColor)
-    ){
-        MainContent(navController = navController, weatherData)
-    }
+    MainContent(navController = navController, weatherData)
 }
 
 @Composable
