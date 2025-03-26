@@ -74,6 +74,7 @@ fun WeatherAppNavigation() {
             NavBar(
                 canNavigateBack = canNavigateBack,
                 navigateUp = { navController.navigateUp() },
+                cityName = backStackEntry?.arguments?.getString("name") ?: "",
                 modifier = Modifier
             )
         }
@@ -111,6 +112,7 @@ fun WeatherAppNavigation() {
 fun NavBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
+    cityName: String = "",
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -139,9 +141,10 @@ fun NavBar(
         actions = {
             if (canNavigateBack) {
                 IconButton(onClick = {
+                    val currentWeather = "$cityName: This is the city name"
                     val sendIntent = Intent().apply {
                         action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "This is my text to send.")
+                        putExtra(Intent.EXTRA_TEXT, "Check out the weather in $currentWeather")
                         type = "text/plain"
                     }
                     val shareIntent = Intent.createChooser(sendIntent, null)
