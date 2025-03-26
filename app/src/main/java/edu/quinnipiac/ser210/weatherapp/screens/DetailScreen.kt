@@ -37,10 +37,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import coil3.compose.AsyncImage
+import edu.quinnipiac.ser210.weatherapp.MyApp
 import edu.quinnipiac.ser210.weatherapp.api.WeatherData
 import edu.quinnipiac.ser210.weatherapp.api.WeatherDesc
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
