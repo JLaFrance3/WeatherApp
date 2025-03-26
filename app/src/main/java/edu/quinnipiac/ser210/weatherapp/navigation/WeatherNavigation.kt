@@ -27,6 +27,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
@@ -74,16 +75,21 @@ fun WeatherAppNavigation() {
     //Short list of locations to query
     val locations = listOf(
         Location("Hartford", "41.77,-72.67"),
-//        Location("Hamden", "41.40,-72.90"),
-//        Location("New York", "40.71,-74.01"),
-//        Location("Chicago", "41.88,-87.63"),
-//        Location("Los Angeles", "34.05,-118.24")
+        Location("Hamden", "41.40,-72.90"),
+        Location("New York", "40.71,-74.01"),
+        Location("Chicago", "41.88,-87.63"),
+        Location("Los Angeles", "34.05,-118.24")
     )
 
+    // Only request data once when the composable is first launched
+    LaunchedEffect(Unit) {
+        weatherViewModel.getData(queries = locations)
+    }
+
     //Get data for each location in list
-    weatherViewModel.getData(
-        queries = locations
-    )
+//    weatherViewModel.getData(
+//        queries = locations
+//    )
     Log.d("Network Request: ", "Completed request, creating navigation items")
 
     Scaffold (
