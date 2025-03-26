@@ -24,6 +24,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -39,10 +40,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import edu.quinnipiac.ser210.weatherapp.api.WeatherData
 import edu.quinnipiac.ser210.weatherapp.data.Location
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import edu.quinnipiac.ser210.weatherapp.screens.DetailScreen
 import edu.quinnipiac.ser210.weatherapp.screens.HomeScreen
+import retrofit2.Response
 
 //NavHost for weather app
 @Composable
@@ -52,6 +55,10 @@ fun WeatherAppNavigation() {
     val backStackEntry by navController.currentBackStackEntryAsState()
     val canNavigateBack = backStackEntry?.destination?.route != WeatherScreens.HomeScreen.name
     val weatherViewModel: WeatherViewModel = viewModel()
+
+    // Get weather data responses from view model to pass to navBar
+    val weatherResults = weatherViewModel.weatherResult.observeAsState()
+    val weatherResponses = weatherResults.value
 
     //Limited requests per day and API requires a lat/long query
     //Short list of locations to query
@@ -75,6 +82,7 @@ fun WeatherAppNavigation() {
                 canNavigateBack = canNavigateBack,
                 navigateUp = { navController.navigateUp() },
                 cityName = backStackEntry?.arguments?.getString("name") ?: "",
+                weatherResponses = weatherResponses,
                 modifier = Modifier
             )
         }
@@ -113,6 +121,7 @@ fun NavBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     cityName: String = "",
+    weatherResponses: Map<String, Response<WeatherData>>?,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -141,14 +150,25 @@ fun NavBar(
         actions = {
             if (canNavigateBack) {
                 IconButton(onClick = {
-                    val currentWeather = "$cityName: This is the city name"
-                    val sendIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "Check out the weather in $currentWeather")
-                        type = "text/plain"
+                    // Get weather for selected city from map of viewmodel responses
+                    val weatherData = weatherResponses?.get(cityName)?.body()
+
+                    if (weatherData != null) {
+                        val currentCondition = weatherData.data.current_condition[0]
+
+                        // Construct share string
+                        val currentWeather = "Its currently ${currentCondition.temp_F}°F " +
+                                "but feels like ${currentCondition.FeelsLikeF}°F\n" +
+                                "Its a ${currentCondition.weatherDesc[0].value} day!"
+
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "Check out the weather in $cityName!\n" + currentWeather)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                     }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    context.startActivity(shareIntent)
                 }){
                     Icon(
                         imageVector = Icons.Filled.Share,
