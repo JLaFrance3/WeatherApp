@@ -68,6 +68,7 @@ fun WeatherAppNavigation() {
 //        Location("New York", "40.71,-74.01"),
 //        Location("Chicago", "41.88,-87.63"),
 //        Location("Los Angeles", "34.05,-118.24")
+//        Location("Boston", "42.36,-71.06")
     )
 
     //Get data for each location in list
