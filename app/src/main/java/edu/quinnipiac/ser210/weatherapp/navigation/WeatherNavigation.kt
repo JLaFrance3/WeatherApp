@@ -13,8 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Settings
@@ -30,6 +28,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -48,10 +47,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import edu.quinnipiac.ser210.weatherapp.api.WeatherData
 import edu.quinnipiac.ser210.weatherapp.data.Location
 import edu.quinnipiac.ser210.weatherapp.model.WeatherViewModel
 import edu.quinnipiac.ser210.weatherapp.screens.DetailScreen
 import edu.quinnipiac.ser210.weatherapp.screens.HomeScreen
+import retrofit2.Response
 
 //NavHost for weather app
 @Composable
@@ -62,10 +63,17 @@ fun WeatherAppNavigation() {
     val canNavigateBack = backStackEntry?.destination?.route != WeatherScreens.HomeScreen.name
     val weatherViewModel: WeatherViewModel = viewModel()
 
+    // Get weather data responses from view model to pass to navBar
+    val weatherResults = weatherViewModel.weatherResult.observeAsState()
+    val weatherResponses = weatherResults.value
+
+    var toggleColor by remember { mutableStateOf(false) }
+    val backgroundColor = if (toggleColor) Color.DarkGray else Color.White
+
     //Limited requests per day and API requires a lat/long query
     //Short list of locations to query
     val locations = listOf(
-//        Location("Hartford", "41.77,-72.67"),
+        Location("Hartford", "41.77,-72.67"),
 //        Location("Hamden", "41.40,-72.90"),
 //        Location("New York", "40.71,-74.01"),
 //        Location("Chicago", "41.88,-87.63"),
@@ -85,7 +93,9 @@ fun WeatherAppNavigation() {
                 canNavigateBack = canNavigateBack,
                 navigateUp = { navController.navigateUp() },
                 cityName = backStackEntry?.arguments?.getString("name") ?: "",
-                modifier = Modifier
+                weatherResponses = weatherResponses,
+                modifier = Modifier,
+                onSettingsClick = { toggleColor = !toggleColor }
             )
         }
     ) { innerPadding ->
@@ -99,7 +109,8 @@ fun WeatherAppNavigation() {
             composable(WeatherScreens.HomeScreen.name) {
                 HomeScreen(
                     navController = navController,
-                    weatherViewModel = weatherViewModel
+                    weatherViewModel = weatherViewModel,
+                    backgroundColor = backgroundColor
                 )
             }
             composable(
@@ -109,7 +120,8 @@ fun WeatherAppNavigation() {
                 DetailScreen(
                     navController = navController,
                     weatherViewModel = weatherViewModel,
-                    backStackEntry.arguments?.getString("name") ?: ""
+                    backStackEntry.arguments?.getString("name") ?: "",
+                    backgroundColor = backgroundColor
                 )
             }
         }
@@ -123,6 +135,8 @@ fun NavBar(
     canNavigateBack: Boolean,
     navigateUp: () -> Unit,
     cityName: String = "",
+    weatherResponses: Map<String, Response<WeatherData>>?,
+    onSettingsClick: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -150,24 +164,35 @@ fun NavBar(
             }
         },
         actions = {
+            // Share Button
             if (canNavigateBack) {
-                // Share Button
                 IconButton(onClick = {
-                    val currentWeather = "$cityName: This is the city name"
-                    val sendIntent = Intent().apply {
-                        action = Intent.ACTION_SEND
-                        putExtra(Intent.EXTRA_TEXT, "Check out the weather in $currentWeather")
-                        type = "text/plain"
+                    // Get weather for selected city from map of viewmodel responses
+                    val weatherData = weatherResponses?.get(cityName)?.body()
+
+                    if (weatherData != null) {
+                        val currentCondition = weatherData.data.current_condition[0]
+
+                        // Construct share string
+                        val currentWeather = "Its currently ${currentCondition.temp_F}°F " +
+                                "but feels like ${currentCondition.FeelsLikeF}°F\n" +
+                                "Its a ${currentCondition.weatherDesc[0].value} day!"
+
+                        val sendIntent = Intent().apply {
+                            action = Intent.ACTION_SEND
+                            putExtra(Intent.EXTRA_TEXT, "Check out the weather in $cityName!\n" + currentWeather)
+                            type = "text/plain"
+                        }
+                        val shareIntent = Intent.createChooser(sendIntent, null)
+                        context.startActivity(shareIntent)
                     }
-                    val shareIntent = Intent.createChooser(sendIntent, null)
-                    context.startActivity(shareIntent)
                 }){
                     Icon(
                         imageVector = Icons.Filled.Share,
                         contentDescription = null,
                         tint = Color.White,
                         modifier = Modifier
-                            .size(32.dp)
+                            .size(28.dp)
                     )
                 }
             }
@@ -178,19 +203,20 @@ fun NavBar(
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                 )
             }
             // Settings Button
-            IconButton(onClick = {}){
+            IconButton(onClick = { onSettingsClick() }){
                 Icon(
                     imageVector = Icons.Outlined.Settings,
                     contentDescription = null,
                     tint = Color.White,
                     modifier = Modifier
-                        .size(32.dp)
+                        .size(28.dp)
                 )
             }
+
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.secondary
