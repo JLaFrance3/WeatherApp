@@ -13,7 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Share
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -21,9 +26,13 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -56,7 +65,7 @@ fun WeatherAppNavigation() {
     //Limited requests per day and API requires a lat/long query
     //Short list of locations to query
     val locations = listOf(
-        Location("Hartford", "41.77,-72.67"),
+//        Location("Hartford", "41.77,-72.67"),
 //        Location("Hamden", "41.40,-72.90"),
 //        Location("New York", "40.71,-74.01"),
 //        Location("Chicago", "41.88,-87.63"),
@@ -116,6 +125,7 @@ fun NavBar(
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
+    var showHelpDialog by remember { mutableStateOf(false) }
 
     CenterAlignedTopAppBar(
         title = {
@@ -140,6 +150,7 @@ fun NavBar(
         },
         actions = {
             if (canNavigateBack) {
+                // Share Button
                 IconButton(onClick = {
                     val currentWeather = "$cityName: This is the city name"
                     val sendIntent = Intent().apply {
@@ -159,6 +170,26 @@ fun NavBar(
                     )
                 }
             }
+            // Help Button
+            IconButton(onClick = { showHelpDialog = true}){
+                Icon(
+                    imageVector = Icons.Outlined.Info,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
+            // Settings Button
+            IconButton(onClick = {}){
+                Icon(
+                    imageVector = Icons.Outlined.Settings,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(32.dp)
+                )
+            }
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.secondary
@@ -167,4 +198,18 @@ fun NavBar(
             .padding(bottom = 4.dp)
             .fillMaxWidth()
     )
+
+    // Display the AlertDialog if showHelpDialog is true
+    if (showHelpDialog) {
+        AlertDialog(
+            onDismissRequest = { showHelpDialog = false },
+            title = { Text(text = "App & API Information") },
+            text = { Text(text = "This weather app makes use of the World Weather Online API, which provides different types of real-time weather data! Access up to 14 days hourly and 15 min weather forecast, astronomy, global weather alerts, and more.") },
+            confirmButton = {
+                TextButton(onClick = { showHelpDialog = false }) {
+                    Text("OK")
+                }
+            }
+        )
+    }
 }
